@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 안전비상벨 지도</title>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d0ba84a83946f644629defc2356bd29c&libraries=services"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: #f0f0f0;
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .radius-section {
+            margin-bottom: 15px;
+        }
+        
+        .radius-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .radius-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: #f0f0f0;
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .radius-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .radius-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .emergency-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-info h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .emergency-info p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #856404;
+        }
+
+        .nearest-bell {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .nearest-bell h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .bell-info {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #155724;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 서울시 안전비상벨 지도</h1>
+            <p>서울시 전역의 22,502개 안전비상벨 위치를 확인하세요</p>
+        </div>
+
+        <div class="main-content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="search-section">
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <input type="text" class="search-box" id="searchBox" placeholder="역명, 학교, 건물명, 주소를 입력하세요..." style="flex: 1;">
+                        <button class="search-btn" onclick="searchAddress()">검색</button>
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-type="all">전체</button>
+                        <button class="filter-btn" data-type="방범용">방범용</button>
+                        <button class="filter-btn" data-type="약자보호">약자보호</button>
+                        <button class="filter-btn" data-type="기타">기타</button>
+                    </div>
+                    
+                    <div class="radius-section">
+                        <h4 style="margin: 10px 0 8px 0; font-size: 14px; color: #333;">표시 반경</h4>
+                        <div class="radius-buttons">
+                            <button class="radius-btn" data-radius="1">1km</button>
+                            <button class="radius-btn active" data-radius="2">2km</button>
+                            <button class="radius-btn" data-radius="5">5km</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3>📊 통계 정보</h3>
+                    <div class="stat-item">
+                        <span>총 비상벨 수</span>
+                        <span class="stat-value" id="totalCount">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>현재 표시</span>
+                        <span class="stat-value" id="currentCount">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>가장 가까운 거리</span>
+                        <span class="stat-value" id="nearestDistance">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>표시 반경</span>
+                        <span class="stat-value" id="radiusInfo">2km 반경</span>
+                    </div>
+                </div>
+
+                <div class="emergency-info">
+                    <h3>🚨 비상 상황 시</h3>
+                    <p>• 현재 위치에서 가장 가까운 비상벨을 찾아주세요</p>
+                    <p>• 비상벨을 누르면 경찰서와 자동 연결됩니다</p>
+                    <p>• 야간에는 가로등이 있는 곳의 비상벨을 이용하세요</p>
+                </div>
+
+                <div class="nearest-bell" id="nearestBellSection" style="display: none;">
+                    <h3>📍 가장 가까운 비상벨</h3>
+                    <div class="bell-info" id="nearestBellInfo"></div>
+                </div>
+
+                <div class="loading" id="loadingSection">
+                    <div class="spinner"></div>
+                    <p>데이터를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
