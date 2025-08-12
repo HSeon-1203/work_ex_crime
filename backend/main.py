@@ -52,7 +52,7 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 5001))  # 5000 → 5001로 변경
     debug = os.environ.get('FLASK_ENV') == 'development'
     
     print(f"🚀 서버 시작: http://localhost:{port}")

@@ -1,6 +1,13 @@
-# 🚨 서울시 안전비상벨 지도
+# 🚨 서울시 안전 앱 (Seoul Safety App)
 
-서울시 전역의 22,502개 안전비상벨 위치를 카카오맵과 연동하여 제공하는 웹 애플리케이션입니다.
+서울시 전역의 안전비상벨, 커뮤니티, 핫존 정보를 통합하여 제공하는 종합 안전 플랫폼입니다.
+
+## 🎯 프로젝트 개요
+
+이 프로젝트는 3명의 개발자가 협업하여 구현한 서울시 안전 앱입니다:
+1. **안전비상벨 지도** - 서울시 22,502개 안전비상벨 위치 표시
+2. **커뮤니티 기능** - 지역별 안전 정보 공유 및 소통
+3. **핫존 분석** - 범죄 예상 구역 및 위험 지역 정보
 
 ## 📊 데이터 현황
 
@@ -30,10 +37,21 @@
 
 ## 🛠️ 기술 스택
 
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **지도 API**: 카카오맵 JavaScript API
-- **데이터**: 서울시 공공데이터 (안전비상벨 정보)
-- **스타일링**: CSS Grid, Flexbox, CSS3 애니메이션
+### **Frontend**
+- **HTML5, CSS3, JavaScript (ES6+)**
+- **카카오맵 JavaScript API** - 지도 및 장소 검색
+- **반응형 디자인** - 모바일, 태블릿, 데스크톱 최적화
+
+### **Backend**
+- **Flask** - Python 웹 프레임워크
+- **SQLite** - 경량 데이터베이스
+- **RESTful API** - JSON 기반 통신
+- **CORS** - 프론트엔드와 백엔드 연동
+
+### **데이터**
+- **서울시 공공데이터** - 안전비상벨 정보 (22,502개)
+- **실시간 위치 기반 서비스** - GPS 활용
+- **핫존 데이터** - 범죄 예상 구역 분석
 
 ## 🚀 설치 및 실행
 
@@ -54,7 +72,13 @@ pip install pandas openpyxl
 python convert_data.py
 ```
 
-### 4. 웹 서버 실행
+### 4. 백엔드 서버 실행
+```bash
+cd backend
+python main.py
+```
+
+### 5. 프론트엔드 서버 실행 (새 터미널)
 ```bash
 # Python 내장 서버 사용
 python -m http.server 8000
@@ -63,20 +87,28 @@ python -m http.server 8000
 npx serve .
 ```
 
-### 5. 브라우저에서 접속
-```
-http://localhost:8000
-```
+### 6. 브라우저에서 접속
+- **프론트엔드**: http://localhost:8000
+- **백엔드 API**: http://localhost:5001
+- **API 상태 확인**: http://localhost:5001/api/health
 
 ## 📁 파일 구조
 
 ```
 cctv2/
-├── index.html              # 메인 HTML 파일
-├── app.js                  # JavaScript 애플리케이션
-├── emergency_bells.json    # 변환된 비상벨 데이터
-├── 안전비상벨정보.xlsx     # 원본 Excel 데이터
-├── convert_data.py         # 데이터 변환 스크립트
+├── frontend/               # 프론트엔드 파일
+│   ├── index.html         # 메인 HTML 파일
+│   └── app.js             # JavaScript 애플리케이션
+├── backend/                # 백엔드 서버
+│   ├── main.py            # Flask 메인 서버
+│   ├── emergency_bells/   # 안전벨 API 모듈
+│   ├── community/         # 커뮤니티 API 모듈
+│   └── hotzone/           # 핫존 API 모듈
+├── database/               # 데이터베이스 파일
+├── emergency_bells.json   # 변환된 비상벨 데이터
+├── 안전비상벨정보.xlsx    # 원본 Excel 데이터
+├── convert_data.py        # 데이터 변환 스크립트
+├── requirements.txt        # Python 의존성
 └── README.md              # 프로젝트 문서
 ```
 
@@ -97,9 +129,16 @@ cctv2/
 
 ## 🔧 API 키 설정
 
+### **카카오맵 API**
 카카오맵 API 키가 이미 설정되어 있습니다:
 - **JavaScript API**: `d0ba84a83946f644629defc2356bd29c`
 - **REST API**: `9ad69b16627cd6c6ef0be64463ffbf18`
+
+### **백엔드 API 엔드포인트**
+- **안전벨**: `/api/emergency-bells`
+- **커뮤니티**: `/api/community`
+- **핫존**: `/api/hotzone`
+- **상태 확인**: `/api/health`
 
 ## 📊 데이터 분석
 
